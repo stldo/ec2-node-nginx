@@ -1,0 +1,18 @@
+#!/bin/sh -eu
+
+su root -c 'portsnap fetch update'
+su root -c 'portmaster -Gady --no-confirm'
+su root -c 'pkg autoremove'
+
+su root -c 'npm -g update'
+su root -c 'npm -g install npm@2'
+
+pm2 update
+
+set +e
+pm2 reload /mnt/node/pm2.yml
+set -e
+
+pm2 save
+
+su root -c 'service nginx reload'

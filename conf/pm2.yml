@@ -1,0 +1,9 @@
+    - name: $APP
+      script: /mnt/node/repo/$APP/index.js
+      cwd: /mnt/node/repo/$APP
+      exec_mode: cluster
+      instances: 1
+      log_date_format: 'YYYY-MM-DD HH:mm:ss.SSS Z'
+      max_memory_restart: '256M'
+      error_file: /var/log/pm2/$APP-error.log
+      out_file: /var/log/pm2/$APP-output.log

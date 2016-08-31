@@ -1,0 +1,39 @@
+#!/bin/sh -eu
+
+if [ -z ${1-} ]; then
+    echo 'App name is required'
+    exit 1
+fi
+
+app=$1
+bin_dir="$( cd "$( dirname "$0" )" && pwd )"
+mount_dir=/mnt/node
+
+if [ ! -d $mount_dir/repo/$app ]; then
+    mkdir -p $mount_dir/repo
+    cp -R $bin_dir/../template $mount_dir/repo/$app
+fi
+
+if [ ! -d $mount_dir/git/$app ]; then
+    mkdir -p $mount_dir/git/$app
+    cd $mount_dir/git/$app
+    git init --bare
+fi
+
+su root -c 'echo "/var/log/pm2/'$app'-error.log 666 7 100 * JC" > /usr/local/etc/newsyslog.conf.d/'$app'.conf'
+su root -c 'echo "/var/log/pm2/'$app'-output.log 666 7 100 * JC" >> /usr/local/etc/newsyslog.conf.d/'$app'.conf'
+
+export APP=$app
+export APP_VARIABLE='${APP}'
+
+su root -m -c 'envsubst $APP_VARIABLE < '$bin_dir'/../conf/nginx-include.conf > /usr/local/etc/nginx/include/'$app'.conf'
+envsubst < $bin_dir/../conf/pm2.yml >> $mount_dir/pm2.yml
+ln -s $bin_dir/../hooks/post-receive $mount_dir/git/$app/hooks/post-receive
+
+echo ''
+echo '-------------------------------------------------------------------------------------------------------------'
+echo '| GIT: ec2-user@'$(curl http://169.254.169.254/latest/meta-data/public-hostname 2> /dev/null)'/~/git/'$app' |'
+echo '-------------------------------------------------------------------------------------------------------------'
+echo ''
+
+$bin_dir/update

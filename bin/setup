@@ -1,0 +1,92 @@
+#!/bin/sh -eu
+
+if [ ! -e ${1-} ]; then
+    echo 'Invalid device '${1-}
+    exit 1
+fi
+
+bin_dir="$( cd "$( dirname "$0" )" && pwd )"
+device=$1
+mount_dir=/mnt/node
+
+su root -c 'mkdir -p '$mount_dir
+su root -c 'echo "'$device' '$mount_dir' ufs rw 1 10" >> /etc/fstab'
+su root -c 'mount -a'
+su root -c 'chown -R ec2-user '$mount_dir
+
+if [ ! -d $HOME/git ]; then
+    mkdir -p $mount_dir/git
+    ln -s $mount_dir/git $HOME/git
+fi
+
+# Install applications
+
+su root -c 'portsnap fetch extract'
+
+cd /usr/ports/ports-mgmt/portmaster
+su root -c 'make install clean BATCH=yes'
+
+cd /usr/ports/www/node4
+su root -c 'make install clean BATCH=yes'
+
+cd /usr/ports/www/npm2
+su root -c 'make install clean BATCH=yes'
+
+cd /usr/ports/www/nginx
+su root -c 'make install clean BATCH=yes \
+    DSO=off \
+    FILE_AIO=off \
+    HTTP_ADDITION=off \
+    HTTP_AUTH_REQ=off \
+    HTTP_CACHE=off \
+    HTTP_DAV=off \
+    HTTP_FLV=off \
+    HTTP_GZIP_STATIC=off \
+    HTTP_GUNZIP_FILTER=off \
+    HTTP_MP4=off \
+    HTTP_RANDOM_INDEX=off \
+    HTTP_REALIP=off \
+    HTTP_REWRITE=off \
+    HTTP_SECURE_LINK=off \
+    HTTP_SLICE=off \
+    HTTP_STATUS=off \
+    HTTP_SUB=off \
+    MAIL=off \
+    MAIL_SSL=off \
+    STREAM=off \
+    STREAM_SSL=off \
+    THREADS=off'
+
+su root -c 'npm -g install pm2'
+
+# Configure applications
+
+su root -c 'mkdir -p /usr/local/etc/newsyslog.conf.d'
+su root -c 'mkdir -p /usr/local/etc/nginx/include'
+su root -c 'mkdir -p /var/log/nginx'
+su root -c 'mkdir -p /var/log/pm2'
+su root -c 'chown ec2-user /var/log/pm2'
+
+su root -c 'echo "nginx_enable=YES" >> /etc/rc.conf'
+su root -c 'echo "pm2_enable=YES" >> /etc/rc.conf'
+su root -c 'echo "/var/log/nginx/error.log 666 7 100 * JC" > /usr/local/etc/newsyslog.conf.d/nginx.conf'
+
+su root -c 'rm -rf /usr/local/etc/nginx/nginx.conf /usr/local/www/nginx'
+su root -c 'ln -s '$bin_dir'/../conf/nginx.conf /usr/local/etc/nginx/nginx.conf'
+su root -c 'ln -s '$bin_dir'/../www /usr/local/www/nginx'
+
+if [ ! -f $mount_dir/pm2.yml ]; then
+    echo 'apps:' > $mount_dir/pm2.yml
+fi
+
+set +e
+pm2 start $mount_dir'/pm2.yml'
+set -e
+
+su root -c 'pm2 startup -u ec2-user'
+su root -c 'service nginx start'
+
+# Reboot...
+
+$bin_dir/update
+su root -c 'reboot'
