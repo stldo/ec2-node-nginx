@@ -35,8 +35,10 @@ else
     su root -m -c 'envsubst $VARIABLES < '$bin_dir'/../conf/nginx-include-ssl.conf > /usr/local/etc/nginx/include/'$app'.conf'
 fi
 
-envsubst < $bin_dir/../conf/pm2.yml >> $mount_dir/pm2.yml
-cp $bin_dir/../hooks/post-receive $mount_dir/git/$app/hooks/post-receive
+if [ ! -f $mount_dir/git/$app/hooks/post-receive ]; then
+    envsubst < $bin_dir/../conf/pm2.yml >> $mount_dir/pm2.yml
+    cp $bin_dir/../hooks/post-receive $mount_dir/git/$app/hooks/post-receive
+fi
 
 echo ''
 echo '-------------------------------------------------------------------------------------------------------------'
