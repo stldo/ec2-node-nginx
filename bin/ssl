@@ -1,0 +1,7 @@
+#!/bin/sh -eu
+
+mount_dir=/mnt/node
+
+rm -rf $mount_dir/ssl/default.key $mount_dir/ssl/default.crt
+
+su root -c 'openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout '$mount_dir'/ssl/default.key -out '$mount_dir'/ssl/default.crt -subj "/CN=*.compute.amazonaws.com"'

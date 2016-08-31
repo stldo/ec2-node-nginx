@@ -14,6 +14,11 @@ su root -c 'echo "'$device' '$mount_dir' ufs rw 1 10" >> /etc/fstab'
 su root -c 'mount -a'
 su root -c 'chown -R ec2-user '$mount_dir
 
+if [ ! -d $mount_dir/ssl ]; then
+    mkdir -p $mount_dir/ssl
+    $bin_dir/ssl
+fi
+
 if [ ! -d $HOME/git ]; then
     mkdir -p $mount_dir/git
     ln -s $mount_dir/git $HOME/git

@@ -8,6 +8,7 @@ fi
 app=$1
 bin_dir="$( cd "$( dirname "$0" )" && pwd )"
 mount_dir=/mnt/node
+ssl_certificate=${2-}
 
 if [ ! -d $mount_dir/repo/$app ]; then
     mkdir -p $mount_dir/repo
@@ -24,11 +25,18 @@ su root -c 'echo "/var/log/pm2/'$app'-error.log 666 7 100 * JC" > /usr/local/etc
 su root -c 'echo "/var/log/pm2/'$app'-output.log 666 7 100 * JC" >> /usr/local/etc/newsyslog.conf.d/'$app'.conf'
 
 export APP=$app
-export APP_VARIABLE='${APP}'
+export MOUNT_DIR=$mount_dir
+export SSL_CERTIFICATE=$ssl_certificate
+export VARIABLES='${APP}${MOUNT_DIR}${SSL_CERTIFICATE}'
 
-su root -m -c 'envsubst $APP_VARIABLE < '$bin_dir'/../conf/nginx-include.conf > /usr/local/etc/nginx/include/'$app'.conf'
+if [ -z $ssl_certificate ]; then
+    su root -m -c 'envsubst $VARIABLES < '$bin_dir'/../conf/nginx-include.conf > /usr/local/etc/nginx/include/'$app'.conf'
+else
+    su root -m -c 'envsubst $VARIABLES < '$bin_dir'/../conf/nginx-include-ssl.conf > /usr/local/etc/nginx/include/'$app'.conf'
+fi
+
 envsubst < $bin_dir/../conf/pm2.yml >> $mount_dir/pm2.yml
-ln -s $bin_dir/../hooks/post-receive $mount_dir/git/$app/hooks/post-receive
+cp $bin_dir/../hooks/post-receive $mount_dir/git/$app/hooks/post-receive
 
 echo ''
 echo '-------------------------------------------------------------------------------------------------------------'

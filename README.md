@@ -19,7 +19,7 @@ $ cd ec2-node-nginx
 
 $ bin/setup {device}
 $ bin/update
-$ bin/load {applicationName}
+$ bin/load {applicationName} {sslCertificate}
 ```
 
 ## Know
@@ -36,15 +36,25 @@ $ su root -c 'newfs /dev/xbd1'
 
 Update ports and global npm packages and clean unused packages.
 
-### bin/load {applicationName}
+### bin/load {applicationName} {sslCertificate}
 
-Loads a new application into the EBS volume, with a basic deployment system.
+Loads a new application into the EBS volume, with a basic deployment system. A custom SSL certificate name can be set or `default` can be used for the system certificate. Custom SSL certificates must be copied to `/mnt/node/ssl/{sslCertificate}.key` and `/mnt/node/ssl/{sslCertificate}.crt` files.
+
+### bin/ssl
+
+Update the system SSL certificate.
 
 ## Requirements
 
 - t2.micro instance
 - A formatted EBS volume
 - FreeBSD 10.3+ AMI
+
+## TODO
+
+- Add server_name to nginx-include[-ssl].conf files; allow only one include without it
+- Custom proxy ports
+- HTTP/2 support
 
 ## License
 
