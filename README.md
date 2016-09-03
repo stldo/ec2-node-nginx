@@ -5,14 +5,13 @@ Node.js v4 and npm2, using PM2 as process manager and nginx as reverse proxy to 
 ## Install
 
 ```bash
-$ su root -c 'pkg install git'
-
+$ sudo yum -y install git
 $ git clone https://github.com/sbtoledo/ec2-node-nginx.git
 ```
 
 ## Use
 
-Set the Node.js application to listen to the port 3000. To deploy code, just git commit to ssh://ec2-user@{hostname}/~/git/{applicationName}.
+Set the Node.js application to listen to the port 3000. To deploy code, just git commit to ssh://ec2-user@{hostname}:~/git/{applicationName}.
 
 ```bash
 $ cd ec2-node-nginx
@@ -26,10 +25,10 @@ $ bin/load {applicationName} {sslCertificate}
 
 ### bin/setup {device}
 
-Mount the application EBS volume to the current instance and configure Node.js and nginx. Usually `{device}` will be `/dev/xbd1`, and it must be formatted if it is a new volume:
+Mount the application EBS volume to the current instance and configure Node.js and nginx. Usually `{device}` will be `/dev/sdb`, and it must be formatted if it is a new volume:
 
 ```bash
-$ su root -c 'newfs /dev/xbd1'
+$ sudo mkfs.ext4 /dev/sdb
 ```
 
 ### bin/update
@@ -47,12 +46,12 @@ Update the system SSL certificate.
 ## Requirements
 
 - t2.micro instance
-- A formatted EBS volume
-- FreeBSD 10.3+ AMI
+- A ext4 formatted EBS volume
+- Amazon Linux AMI
 
 ## TODO
 
-- Add server_name to nginx-include[-ssl].conf files; allow only one include without it
+- Add server_name to nginx-http[-https].conf files; allow only one include without it
 - Custom proxy ports
 - HTTP/2 support
 

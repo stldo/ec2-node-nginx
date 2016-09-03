@@ -21,19 +21,18 @@ if [ ! -d $mount_dir/git/$app ]; then
     git init --bare
 fi
 
-su root -c 'echo "/var/log/pm2/'$app'-error.log 666 7 100 * JC" > /usr/local/etc/newsyslog.conf.d/'$app'.conf'
-su root -c 'echo "/var/log/pm2/'$app'-output.log 666 7 100 * JC" >> /usr/local/etc/newsyslog.conf.d/'$app'.conf'
-
 export APP=$app
 export MOUNT_DIR=$mount_dir
 export SSL_CERTIFICATE=$ssl_certificate
-export VARIABLES='${APP}${MOUNT_DIR}${SSL_CERTIFICATE}'
 
 if [ -z $ssl_certificate ]; then
-    su root -m -c 'envsubst $VARIABLES < '$bin_dir'/../conf/nginx-include.conf > /usr/local/etc/nginx/include/'$app'.conf'
+    envsubst '${APP}${MOUNT_DIR}' < $bin_dir/../conf/nginx-http.conf > /tmp/nginx-$app.conf
 else
-    su root -m -c 'envsubst $VARIABLES < '$bin_dir'/../conf/nginx-include-ssl.conf > /usr/local/etc/nginx/include/'$app'.conf'
+    envsubst '${APP}${MOUNT_DIR}${SSL_CERTIFICATE}' < $bin_dir/../conf/nginx-http-https.conf > /tmp/nginx-$app.conf
 fi
+
+sudo rm -f /etc/nginx/conf/$app.conf
+sudo mv /tmp/nginx-$app.conf /etc/nginx/conf/$app.conf
 
 if [ ! -f $mount_dir/git/$app/hooks/post-receive ]; then
     envsubst < $bin_dir/../conf/pm2.yml >> $mount_dir/pm2.yml

@@ -1,5 +1,4 @@
 #!/bin/sh
-# git push production +master:refs/heads/master
 
 hook_dir="$( cd "$( dirname "$0" )" && pwd )"
 app="$( basename "$( dirname "$hook_dir" )" )"

@@ -1,18 +1,95 @@
 #!/bin/sh -eu
 
-su root -c 'portsnap fetch update'
-su root -c 'portmaster -Gady --no-confirm'
-su root -c 'pkg autoremove'
+bin_dir="$( cd "$( dirname "$0" )" && pwd )"
 
-su root -c 'npm -g update'
-su root -c 'npm -g install npm@2'
+# Install/update Node.js
+
+node_version="$(curl --silent --max-time 7 https://semver.io/node/resolve/4)"
+node_pkg='node-v'$node_version
+
+if ! echo ${node_version-} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' &> /dev/null; then
+    echo 'Failed to retrive Node.js version'
+    return 1
+elif [ "$( cat "$HOME"/node_version 2> /dev/null )" != "$node_version" ]; then
+    pushd /tmp
+    rm -rf $node_pkg*
+    wget https://nodejs.org/dist/v$node_version/$node_pkg.tar.gz
+    tar xzf $node_pkg.tar.gz
+    pushd $node_pkg
+
+    ./configure
+    make
+    sudo make install
+
+    popd
+    rm -rf $node_pkg*
+    popd
+
+    echo $node_version > $HOME/node_version
+else
+    echo 'Node.js is in the latest version: '$node_version
+fi
+
+# Install/update nginx
+
+nginx_version="$(curl --silent --max-time 7 https://semver.io/nginx/stable)"
+nginx_pkg='nginx-'$nginx_version
+
+if ! echo ${nginx_version-} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' &> /dev/null; then
+    echo 'Failed to retrive nginx version'
+    return 1
+elif [ "$( cat "$HOME"/nginx_version 2> /dev/null )" != "$nginx_version" ]; then
+    pushd /tmp
+    rm -rf $nginx_pkg*
+    wget http://nginx.org/download/$nginx_pkg.tar.gz
+    tar xzf $nginx_pkg.tar.gz
+    pushd $nginx_pkg
+
+    ./configure \
+        --user=nginx \
+        --group=nginx \
+        --prefix=/etc/nginx \
+        --sbin-path=/usr/sbin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --without-http_rewrite_module \
+        --with-http_ssl_module \
+        --with-http_v2_module \
+        --with-ipv6
+    make
+    sudo make install
+
+    popd
+    rm -rf $nginx_pkg*
+    popd
+
+    echo $nginx_version > $HOME/nginx_version
+else
+    echo 'nginx is in the latest version: '$nginx_version
+fi
+
+# Update npm/PM2
+
+if [ ! -d $HOME/.npm-global ]; then
+    mkdir -p $HOME/.npm-global
+    npm config set prefix '~/.npm-global'
+    echo 'export PATH=$HOME/.npm-global/bin:$PATH' >> $HOME/.bashrc
+    source $HOME/.bashrc
+fi
+
+npm -g install pm2
+npm -g update
+npm -g install npm@2
+
+# Reload Node.js
 
 pm2 update
 
 set +e
-pm2 reload /mnt/node/pm2.yml
+pm2 reload /mnt/node/pm2.yml 2> /dev/null
 set -e
 
-pm2 save
+pm2 save 2> /dev/null
 
-su root -c 'service nginx reload'
+set +e
+sudo service nginx reload
+set -e
