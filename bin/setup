@@ -9,7 +9,7 @@ bin_dir="$( cd "$( dirname "$0" )" && pwd )"
 device=$1
 mount_dir=/mnt/node
 
-sudo yum -y install gettext gcc48-c++ openssl-devel
+# Create and mount filesystems
 
 if [ ! -d $mount_dir ]; then
     sudo mkdir -p $mount_dir
@@ -17,6 +17,18 @@ if [ ! -d $mount_dir ]; then
     sudo mount -a
     sudo chown -R ec2-user $mount_dir
 fi
+
+if [ ! -e /mnt/swap ]; then
+    sudo fallocate -l 2G /mnt/swap
+    sudo chmod 600 /mnt/swap
+    sudo mkswap /mnt/swap
+    sudo swapon /mnt/swap
+    echo '/mnt/swap none swap sw 0 0' | sudo tee --append /etc/fstab
+fi
+
+# Install required applications
+
+sudo yum -y install gettext gcc48-c++ openssl-devel
 
 # Generate default SSL certificate
 
