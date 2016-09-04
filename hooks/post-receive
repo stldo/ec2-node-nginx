@@ -13,7 +13,7 @@ GIT_WORK_TREE=$repo_dir git checkout -f master
 echo 'Installing dependencies'
 cd $repo_dir
 rm -rf node_modules
-npm install --production
+npm install --production --loglevel info
 
 pm2 restart $app
 echo 'Update completed'
