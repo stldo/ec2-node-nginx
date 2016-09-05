@@ -2,6 +2,10 @@
 
 bin_dir="$( cd "$( dirname "$0" )" && pwd )"
 
+# Update system packages
+
+sudo yum -y update
+
 # Install/update Node.js
 
 node_version="$(curl --silent --max-time 7 https://semver.io/node/resolve/4)"
