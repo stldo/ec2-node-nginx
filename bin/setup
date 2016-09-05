@@ -34,7 +34,7 @@ sudo yum -y install gettext gcc48-c++ openssl-devel
 
 mkdir -p $mount_dir/ssl
 sudo rm -f $mount_dir/ssl/dhparam.pem $mount_dir/ssl/default.key $mount_dir/ssl/default.crt
-sudo openssl dhparam -out $mount_dir/ssl/dhparam.pem 4096
+sudo openssl dhparam -out $mount_dir/ssl/dhparam.pem 2048
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout $mount_dir/ssl/default.key -out $mount_dir/ssl/default.crt -subj '/CN='$(curl http://169.254.169.254/latest/meta-data/public-hostname 2> /dev/null)
 
 # Git directory
