@@ -26,7 +26,7 @@ $ bin/ssl {domainName}
 
 ### bin/setup {device}
 
-Mount the application EBS volume to the current instance and configure Node.js and nginx. Usually `{device}` will be `/dev/sdb`, and it must be formatted if it is a new volume:
+Mount an EBS volume containing applications to the current instance and configure Node.js and nginx. Usually `{device}` will be `/dev/sdb`. It must be formatted if it is a new volume:
 
 ```bash
 $ sudo mkfs.ext4 /dev/sdb
@@ -34,11 +34,11 @@ $ sudo mkfs.ext4 /dev/sdb
 
 ### bin/update
 
-Update ports and global npm packages and clean unused packages.
+Update system packages and global npm packages and clean unused packages.
 
 ### bin/load {applicationName} {domainName} {sslCertificate}
 
-Load a new application into the EBS volume, with a basic deployment system. `{domainName}` must be a space separated list with the domain names that the server must listen to. If `{sslCertificate}` is set to true, `load` will look for a folder name normalized from `{domainName}` and inside `/mnt/node/ssl/` for a certificate. If a certificate is not found, a new one will be generated using Certbot.
+Load a new application into the EBS volume, with a basic deployment system. `{domainName}` must be a space separated list with the domain names that the server must listen to. If `{sslCertificate}` is set to true, `load` will look for a folder name normalized from `{domainName}` inside `/mnt/node/ssl/` for a certificate. If a certificate is not found, a new one will be generated using Certbot.
 
 ### bin/ssl {domainName}
 
