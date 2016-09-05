@@ -24,7 +24,7 @@ wget https://dl.eff.org/certbot-auto
 chmod a+x certbot-auto
 
 sudo service nginx stop
-sudo ./certbot-auto certonly --standalone --standalone-supported-challenges tls-sni-01 --noninteractive --rsa-key-size 4096 --agree-tos --email $email --domains $domain_name --cert-path $mount_dir/ssl/$ssl_certificate/cert.pem --key-path $mount_dir/ssl/$ssl_certificate/privkey.pem --fullchain-path $mount_dir/ssl/$ssl_certificate/fullchain.pem --chain-path $mount_dir/ssl/$ssl_certificate/chain.pem
+sudo ./certbot-auto certonly --debug --standalone --standalone-supported-challenges tls-sni-01 --noninteractive --rsa-key-size 4096 --agree-tos --email $email --domains $domain_name --cert-path $mount_dir/ssl/$ssl_certificate/cert.pem --key-path $mount_dir/ssl/$ssl_certificate/privkey.pem --fullchain-path $mount_dir/ssl/$ssl_certificate/fullchain.pem --chain-path $mount_dir/ssl/$ssl_certificate/chain.pem
 sudo service nginx start
 
 sudo echo 'sudo /home/ec2-user/certbot-auto renew' > /etc/cron.weekly/certbot-renew
