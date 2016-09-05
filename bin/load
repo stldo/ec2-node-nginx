@@ -7,22 +7,32 @@ fi
 
 app=$1
 bin_dir="$( cd "$( dirname "$0" )" && pwd )"
-mount_dir=/mnt/node
 domain_name=${2-}
+mount_dir=/mnt/node
+scheme='http'
 ssl_certificate=${3-}
 
-if [[ ! -z $domain_name ]]; then
-    if [[ ! -z $ssl_certificate ]]; then
+if [[ -z $ssl_certificate ]] && [[ 'true' == $domain_name ]]; then
+    domain_name=''
+    scheme='http2'
+elif [[ ! -z $domain_name ]]; then
+    if [[ 'true' == $ssl_certificate ]]; then
+        scheme='http2'
         ssl_certificate=$(echo $domain_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
 
-        if [[ -d $mount_dir/ssl/$ssl_certificate ]]; then
-            ssl_certificate="ssl_certificate $mount_dir/ssl/$ssl_certificate/fullchain.pem; ssl_certificate_key $mount_dir/ssl/$ssl_certificate/privkey.pem;"
-        else
+        if [[ ! -d $mount_dir/ssl/$ssl_certificate ]]; then
             $bin_dir/ssl $domain_name
         fi
+
+        ssl_certificate="ssl_certificate $mount_dir/ssl/$ssl_certificate/fullchain.pem; ssl_certificate_key $mount_dir/ssl/$ssl_certificate/privkey.pem;"
+    else
+        ssl_certificate=''
     fi
 
     domain_name="server_name $domain_name;"
+else
+    domain_name=''
+    ssl_certificate=''
 fi
 
 if [[ ! -d $mount_dir/repo/$app ]]; then
@@ -43,13 +53,10 @@ if [[ -z $domain_name ]]; then
     export DEFAULT_SERVER="default_server"
 fi
 
-if [[ -z $ssl_certificate ]]; then
-    envsubst '${APP}${DEFAULT_SERVER}${SERVER_NAME}' < $bin_dir/../conf/nginx-http.conf > /tmp/nginx-$app.conf
-else
-    envsubst '${APP}${DEFAULT_SERVER}${SERVER_NAME}${SSL_CERTIFICATE}' < $bin_dir/../conf/nginx-http2.conf > /tmp/nginx-$app.conf
-fi
-
-sudo rm -f /etc/nginx/conf/$app.conf
+sudo rm -f /tmp/nginx-$app.conf /etc/nginx/conf/$app.conf
+envsubst '$APP$DEFAULT_SERVER$SERVER_NAME$SSL_CERTIFICATE' < $bin_dir/../conf/nginx-$scheme.conf > /tmp/nginx-$app.conf
+sudo chgrp root /tmp/nginx-$app.conf
+sudo chown root /tmp/nginx-$app.conf
 sudo mv /tmp/nginx-$app.conf /etc/nginx/conf/$app.conf
 
 if [[ ! -f $mount_dir/git/$app/hooks/post-receive ]]; then

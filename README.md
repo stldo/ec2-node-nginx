@@ -36,9 +36,9 @@ $ sudo mkfs.ext4 /dev/sdb
 
 Update system packages and global npm packages and clean unused packages.
 
-### bin/load {applicationName} {domainName} {sslCertificate}
+### bin/load {applicationName} [{domainName}] {sslCertificate}
 
-Load a new application into the EBS volume, with a basic deployment system. `{domainName}` must be a space separated list with the domain names that the server must listen to. If `{sslCertificate}` is set to true, `load` will look for a folder name normalized from `{domainName}` inside `/mnt/node/ssl/` for a certificate. If a certificate is not found, a new one will be generated using Certbot.
+Load a new application into the EBS volume, with a basic deployment system. `{domainName}` is optional and must be a space separated list with the domain names that the server must listen to. If `{sslCertificate}` is set to `true`, `load` will look for a folder name normalized from `{domainName}` inside `/mnt/node/ssl/` for a certificate. If a certificate is not found, a new one will be generated using Certbot.
 
 ### bin/ssl {domainName}
 
