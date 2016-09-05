@@ -18,8 +18,8 @@ $ cd ec2-node-nginx
 
 $ bin/setup {device}
 $ bin/update
-$ bin/load {applicationName} {serverName} {sslCertificate}
-$ bin/ssl {serverName}
+$ bin/load {applicationName} {domainName} {sslCertificate}
+$ bin/ssl {domainName}
 ```
 
 ## Know
@@ -36,13 +36,13 @@ $ sudo mkfs.ext4 /dev/sdb
 
 Update ports and global npm packages and clean unused packages.
 
-### bin/load {applicationName} {domainNames} {sslCertificate}
+### bin/load {applicationName} {domainName} {sslCertificate}
 
-Load a new application into the EBS volume, with a basic deployment system. `{domainNames}` must be a space separated list with the domain names that the server must listen to. If `{sslCertificate}` is set to true, `load` will look for a folder name normalized from `{domainNames}` and inside `/mnt/node/ssl/` for a certificate. If a certificate is not found, a new one will be generated using Certbot.
+Load a new application into the EBS volume, with a basic deployment system. `{domainName}` must be a space separated list with the domain names that the server must listen to. If `{sslCertificate}` is set to true, `load` will look for a folder name normalized from `{domainName}` and inside `/mnt/node/ssl/` for a certificate. If a certificate is not found, a new one will be generated using Certbot.
 
-### bin/ssl {domainNames}
+### bin/ssl {domainName}
 
-Generate a free SSL certificate using Certbot. `{domainNames}` must be a space or comma separated list with the domain names to sign. Note that Let's Encrypt doesn't support wildcard domains.
+Generate a free SSL certificate using Certbot. `{domainName}` must be a space or comma separated list with the domain names to sign. Note that Let's Encrypt doesn't support wildcard domains.
 
 ## Requirements
 

@@ -8,21 +8,21 @@ fi
 app=$1
 bin_dir="$( cd "$( dirname "$0" )" && pwd )"
 mount_dir=/mnt/node
-server_name=${2-}
+domain_name=${2-}
 ssl_certificate=${3-}
 
-if [[ ! -z $server_name ]]; then
+if [[ ! -z $domain_name ]]; then
     if [[ ! -z $ssl_certificate ]]; then
-        ssl_certificate=$(echo $server_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
+        ssl_certificate=$(echo $domain_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
 
         if [[ -d $mount_dir/ssl/$ssl_certificate ]]; then
             ssl_certificate="ssl_certificate $mount_dir/ssl/$ssl_certificate/fullchain.pem; ssl_certificate_key $mount_dir/ssl/$ssl_certificate/privkey.pem;"
         else
-            $bin_dir/ssl $server_name
+            $bin_dir/ssl $domain_name
         fi
     fi
 
-    server_name="server_name $server_name;"
+    domain_name="server_name $domain_name;"
 fi
 
 if [[ ! -d $mount_dir/repo/$app ]]; then
@@ -37,9 +37,9 @@ if [[ ! -d $mount_dir/git/$app ]]; then
 fi
 
 export APP=$app
-export SERVER_NAME=$server_name
+export SERVER_NAME=$domain_name
 export SSL_CERTIFICATE=$ssl_certificate
-if [[ -z $server_name ]]; then
+if [[ -z $domain_name ]]; then
     export DEFAULT_SERVER="default_server"
 fi
 
