@@ -77,8 +77,9 @@ if [ ! -d $HOME/.npm-global ]; then
     mkdir -p $HOME/.npm-global
     npm config set prefix '~/.npm-global'
     echo 'export PATH=$HOME/.npm-global/bin:$PATH' >> $HOME/.bashrc
-    source $HOME/.bashrc
 fi
+
+export PATH=$HOME/.npm-global/bin:$PATH
 
 npm -g install pm2
 npm -g update
