@@ -57,9 +57,10 @@ $bin_dir/update
 sudo mkdir -p /etc/nginx/conf /var/log/nginx /var/log/pm2
 sudo chown ec2-user /var/log/pm2
 
-sudo rm -rf /etc/logrotate.d/node /etc/nginx/nginx.conf /etc/nginx/html /etc/init.d/nginx
+sudo rm -rf /etc/logrotate.d/node /etc/nginx/nginx.conf /etc/nginx/server.conf /etc/nginx/html /etc/init.d/nginx
 sudo cp $bin_dir/../conf/logrotate.conf /etc/logrotate.d/node
 sudo cp $bin_dir/../conf/nginx.conf /etc/nginx/nginx.conf
+sudo cp $bin_dir/../conf/nginx-server.conf /etc/nginx/server.conf
 sudo cp -R $bin_dir/../html /etc/nginx/html
 sudo cp $bin_dir/../etc/init.d/nginx /etc/init.d/nginx
 

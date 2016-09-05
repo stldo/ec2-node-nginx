@@ -51,9 +51,7 @@ Update the system SSL certificate.
 
 ## TODO
 
-- Add server_name to nginx-http[-https].conf files; allow only one include without it
 - Custom proxy ports
-- HTTP/2 support
 
 ## License
 

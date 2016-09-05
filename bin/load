@@ -1,6 +1,6 @@
 #!/bin/sh -eu
 
-if [ -z ${1-} ]; then
+if [[ -z ${1-} ]]; then
     echo 'App name is required'
     exit 1
 fi
@@ -8,33 +8,51 @@ fi
 app=$1
 bin_dir="$( cd "$( dirname "$0" )" && pwd )"
 mount_dir=/mnt/node
-ssl_certificate=${2-}
+server_name=${2-}
+ssl_certificate=${3-}
 
-if [ ! -d $mount_dir/repo/$app ]; then
+if [[ ! -z $server_name ]]; then
+    if [[ ! -z $ssl_certificate ]]; then
+        ssl_certificate=$(echo $server_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
+        if [[ -d $mount_dir/ssl/$ssl_certificate ]]; then
+            ssl_certificate="ssl_certificate $mount_dir/ssl/$ssl_certificate/fullchain.pem; ssl_certificate_key $mount_dir/ssl/$ssl_certificate/privkey.pem;"
+        else
+            echo "SSL certificate could not be found"
+            exit 1
+        fi
+    fi
+
+    server_name="server_name $server_name;"
+fi
+
+if [[ ! -d $mount_dir/repo/$app ]]; then
     mkdir -p $mount_dir/repo
     cp -R $bin_dir/../template $mount_dir/repo/$app
 fi
 
-if [ ! -d $mount_dir/git/$app ]; then
+if [[ ! -d $mount_dir/git/$app ]]; then
     mkdir -p $mount_dir/git/$app
     cd $mount_dir/git/$app
     git init --bare
 fi
 
 export APP=$app
-export MOUNT_DIR=$mount_dir
+export SERVER_NAME=$server_name
 export SSL_CERTIFICATE=$ssl_certificate
+if [[ -z $server_name ]]; then
+    export DEFAULT_SERVER="default_server"
+fi
 
-if [ -z $ssl_certificate ]; then
-    envsubst '${APP}${MOUNT_DIR}' < $bin_dir/../conf/nginx-http.conf > /tmp/nginx-$app.conf
+if [[ -z $ssl_certificate ]]; then
+    envsubst '${APP}${DEFAULT_SERVER}${SERVER_NAME}' < $bin_dir/../conf/nginx-http.conf > /tmp/nginx-$app.conf
 else
-    envsubst '${APP}${MOUNT_DIR}${SSL_CERTIFICATE}' < $bin_dir/../conf/nginx-http-https.conf > /tmp/nginx-$app.conf
+    envsubst '${APP}${DEFAULT_SERVER}${SERVER_NAME}${SSL_CERTIFICATE}' < $bin_dir/../conf/nginx-http2.conf > /tmp/nginx-$app.conf
 fi
 
 sudo rm -f /etc/nginx/conf/$app.conf
 sudo mv /tmp/nginx-$app.conf /etc/nginx/conf/$app.conf
 
-if [ ! -f $mount_dir/git/$app/hooks/post-receive ]; then
+if [[ ! -f $mount_dir/git/$app/hooks/post-receive ]]; then
     envsubst < $bin_dir/../conf/pm2.yml >> $mount_dir/pm2.yml
     cp $bin_dir/../hooks/post-receive $mount_dir/git/$app/hooks/post-receive
 fi
