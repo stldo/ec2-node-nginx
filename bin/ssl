@@ -1,6 +1,31 @@
 #!/bin/sh -eu
 
 mount_dir=/mnt/node
+server_name=${1-}
 
-sudo rm -f $mount_dir/ssl/default.key $mount_dir/ssl/default.crt
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout $mount_dir/ssl/default.key -out $mount_dir/ssl/default.crt -subj '/CN=*.compute.amazonaws.com'
+if [[ -z $server_name ]]; then
+    echo "At least one domain name is required to generate a certificate"
+    exit 1
+elif [[ $server_name == *'*'* ]]; then
+    echo "Wildcard domains are not supported with Let's Encrypt"
+    exit 1
+fi
+
+ssl_certificate=$(echo $server_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
+server_name=$(echo $server_name | sed -e 's/ /,/g')
+
+echo "Enter email address to register Let's Encrypt certificate"
+read email
+
+cd $HOME
+
+rm -f certbot-auto
+wget https://dl.eff.org/certbot-auto
+chmod a+x certbot-auto
+
+sudo service nginx stop
+sudo ./certbot-auto certonly --standalone --standalone-supported-challenges tls-sni-01 --noninteractive --rsa-key-size 4096 --agree-tos --email $email --domains $server_name --cert-path $mount_dir/ssl/$ssl_certificate/cert.pem --key-path $mount_dir/ssl/$ssl_certificate/privkey.pem --fullchain-path $mount_dir/ssl/$ssl_certificate/fullchain.pem --chain-path $mount_dir/ssl/$ssl_certificate/chain.pem
+sudo service nginx start
+
+sudo echo 'sudo /home/ec2-user/certbot-auto renew' > /etc/cron.weekly/certbot-renew
+sudo chmod +x /etc/cron.weekly/certbot-renew

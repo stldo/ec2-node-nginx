@@ -14,11 +14,11 @@ ssl_certificate=${3-}
 if [[ ! -z $server_name ]]; then
     if [[ ! -z $ssl_certificate ]]; then
         ssl_certificate=$(echo $server_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
+
         if [[ -d $mount_dir/ssl/$ssl_certificate ]]; then
             ssl_certificate="ssl_certificate $mount_dir/ssl/$ssl_certificate/fullchain.pem; ssl_certificate_key $mount_dir/ssl/$ssl_certificate/privkey.pem;"
         else
-            echo "SSL certificate could not be found"
-            exit 1
+            $bin_dir/ssl $server_name
         fi
     fi
 

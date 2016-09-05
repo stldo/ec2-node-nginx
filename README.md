@@ -18,7 +18,8 @@ $ cd ec2-node-nginx
 
 $ bin/setup {device}
 $ bin/update
-$ bin/load {applicationName} {sslCertificate}
+$ bin/load {applicationName} {serverName} {sslCertificate}
+$ bin/ssl {serverName}
 ```
 
 ## Know
@@ -35,13 +36,13 @@ $ sudo mkfs.ext4 /dev/sdb
 
 Update ports and global npm packages and clean unused packages.
 
-### bin/load {applicationName} {sslCertificate}
+### bin/load {applicationName} {domainNames} {sslCertificate}
 
-Loads a new application into the EBS volume, with a basic deployment system. A custom SSL certificate name can be set or `default` can be used for the system certificate. Custom SSL certificates must be copied to `/mnt/node/ssl/{sslCertificate}.key` and `/mnt/node/ssl/{sslCertificate}.crt` files.
+Load a new application into the EBS volume, with a basic deployment system. `{domainNames}` must be a space separated list with the domain names that the server must listen to. If `{sslCertificate}` is set to true, `load` will look for a folder name normalized from `{domainNames}` and inside `/mnt/node/ssl/` for a certificate. If a certificate is not found, a new one will be generated using Certbot.
 
-### bin/ssl
+### bin/ssl {domainNames}
 
-Update the system SSL certificate.
+Generate a free SSL certificate using Certbot. `{domainNames}` must be a space or comma separated list with the domain names to sign. Note that Let's Encrypt doesn't support wildcard domains.
 
 ## Requirements
 
