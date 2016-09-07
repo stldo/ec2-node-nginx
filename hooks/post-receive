@@ -4,9 +4,6 @@ hook_dir="$( cd "$( dirname "$0" )" && pwd )"
 app="$( basename "$( dirname "$hook_dir" )" )"
 repo_dir=/mnt/node/repo/$app
 
-echo 'Starting update'
-pm2 stop $app
-
 echo 'Copying files'
 GIT_WORK_TREE=$repo_dir git checkout -f master
 
@@ -15,5 +12,5 @@ cd $repo_dir
 rm -rf node_modules
 npm install --production --loglevel info
 
-pm2 restart $app
+pm2 reload $app
 echo 'Update completed'
