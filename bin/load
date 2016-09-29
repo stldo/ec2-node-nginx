@@ -18,13 +18,13 @@ if [[ -z $ssl_certificate ]] && [[ 'true' == $domain_name ]]; then
 elif [[ ! -z $domain_name ]]; then
     if [[ 'true' == $ssl_certificate ]]; then
         scheme='http2'
-        ssl_certificate=$(echo $domain_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
+        ssl_certificate=$(echo $domain_name | sed -e 's/^ \+//' | sed -e 's/ .*//')
 
-        if [[ ! -d $mount_dir/ssl/$ssl_certificate ]]; then
-            $bin_dir/ssl $domain_name
+        if [[ ! -d /etc/letsencrypt/live/$ssl_certificate ]]; then
+            $bin_dir/ssl "$domain_name"
         fi
 
-        ssl_certificate="ssl_certificate $mount_dir/ssl/$ssl_certificate/fullchain.pem; ssl_certificate_key $mount_dir/ssl/$ssl_certificate/privkey.pem;"
+        ssl_certificate="ssl_certificate /etc/letsencrypt/live/$ssl_certificate/fullchain.pem; ssl_certificate_key /etc/letsencrypt/live/$ssl_certificate/privkey.pem;"
     else
         ssl_certificate=''
     fi

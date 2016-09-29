@@ -42,7 +42,7 @@ Load a new application into the EBS volume, with a basic deployment system. `{do
 
 ### bin/ssl {domainName}
 
-Generate a free SSL certificate using Certbot. `{domainName}` must be a space or comma separated list with the domain names to sign. Note that Let's Encrypt doesn't support wildcard domains.
+Generate a free SSL certificate using Certbot. `{domainName}` must be a space separated list with the domain names to sign. Note that Let's Encrypt doesn't support wildcard domains.
 
 ## Requirements
 

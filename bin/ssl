@@ -11,11 +11,7 @@ elif [[ $domain_name == *'*'* ]]; then
     exit 1
 fi
 
-ssl_certificate=$(echo $domain_name | sed -e 's/[^A-Za-z0-9._-]/_/g')
-domain_name=$(echo $domain_name | sed -e 's/ /,/g')
-
-echo "Enter email address to register Let's Encrypt certificate"
-read email
+domain_name=$(echo $domain_name | sed -e 's/^ \+//' | sed -e 's/ \+$//' | sed -e 's/ \+/ -d /g')
 
 cd $HOME
 
@@ -24,8 +20,8 @@ wget https://dl.eff.org/certbot-auto
 chmod a+x certbot-auto
 
 sudo service nginx stop
-sudo ./certbot-auto certonly --debug --standalone --standalone-supported-challenges tls-sni-01 --noninteractive --rsa-key-size 4096 --agree-tos --email $email --domains $domain_name --cert-path $mount_dir/ssl/$ssl_certificate/cert.pem --key-path $mount_dir/ssl/$ssl_certificate/privkey.pem --fullchain-path $mount_dir/ssl/$ssl_certificate/fullchain.pem --chain-path $mount_dir/ssl/$ssl_certificate/chain.pem
+sudo ./certbot-auto certonly --debug --standalone --standalone-supported-challenges tls-sni-01 --noninteractive --rsa-key-size 4096 --agree-tos --register-unsafely-without-email -d $domain_name
 sudo service nginx start
 
-sudo echo 'sudo /home/ec2-user/certbot-auto renew' > /etc/cron.weekly/certbot-renew
+sudo su -c "echo 'sudo /home/ec2-user/certbot-auto renew' > /etc/cron.weekly/certbot-renew"
 sudo chmod +x /etc/cron.weekly/certbot-renew
