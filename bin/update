@@ -8,7 +8,7 @@ sudo yum -y update
 
 # Install/update Node.js
 
-node_version="$(curl --silent --max-time 7 https://semver.io/node/resolve/4)"
+node_version="$(curl --silent --max-time 7 https://semver.io/node/resolve/6)"
 node_pkg='node-v'$node_version
 
 if ! echo ${node_version-} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' &> /dev/null; then
@@ -83,7 +83,6 @@ export PATH=$HOME/.npm-global/bin:$PATH
 
 npm -g install pm2
 npm -g update
-npm -g install npm@2
 
 # Reload Node.js
 
