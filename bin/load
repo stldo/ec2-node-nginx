@@ -64,6 +64,20 @@ if [[ ! -f $mount_dir/git/$app/hooks/post-receive ]]; then
     cp $bin_dir/../hooks/post-receive $mount_dir/git/$app/hooks/post-receive
 fi
 
+# Reload Node.js
+
+pm2 update
+
+set +e
+pm2 reload /mnt/node/pm2.yml 2> /dev/null
+set -e
+
+pm2 save 2> /dev/null
+
+set +e
+sudo service nginx reload
+set -e
+
 echo ''
 echo '-------------------------------------------------------------------------------------------------------------'
 echo '| GIT: ec2-user@'$(curl http://169.254.169.254/latest/meta-data/public-hostname 2> /dev/null)':~/git/'$app' |'
