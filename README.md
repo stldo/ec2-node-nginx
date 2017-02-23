@@ -1,6 +1,6 @@
 # ec2-node-nginx
 
-Node.js v4 and npm2, using PM2 as process manager and nginx as reverse proxy to reduce server load.
+Node.js LTS, PM2 as process manager, and nginx as reverse proxy—reducing server load.
 
 ## Install
 
@@ -56,4 +56,4 @@ Generate a free SSL certificate using Certbot. `{domainName}` must be a space se
 
 ## License
 
-The MIT License (MIT), © 2016 Saulo Toledo
+The MIT License (MIT), © 2017 Saulo Toledo

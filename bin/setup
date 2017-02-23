@@ -30,7 +30,7 @@ fi
 
 sudo yum -y install gettext gcc48-c++ openssl-devel
 
-# Generate default SSL certificate
+# Generate default SSL certificate (unsigned)
 
 mkdir -p $mount_dir/ssl
 sudo rm -f $mount_dir/ssl/dhparam.pem $mount_dir/ssl/default.key $mount_dir/ssl/default.crt
