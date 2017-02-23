@@ -20,7 +20,7 @@ wget https://dl.eff.org/certbot-auto
 chmod a+x certbot-auto
 
 sudo service nginx stop
-sudo ./certbot-auto certonly --debug --standalone --standalone-supported-challenges tls-sni-01 --noninteractive --rsa-key-size 4096 --agree-tos --register-unsafely-without-email -d $domain_name
+sudo ./certbot-auto certonly --debug --standalone --preferred-challenges tls-sni-01 --noninteractive --rsa-key-size 4096 --agree-tos --register-unsafely-without-email -d $domain_name
 sudo service nginx start
 
 sudo su -c "echo 'sudo /home/ec2-user/certbot-auto renew' > /etc/cron.weekly/certbot-renew"
