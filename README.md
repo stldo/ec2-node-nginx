@@ -6,7 +6,7 @@ Node.js LTS, PM2 as process manager, and nginx as reverse proxy—reducing serve
 
 ```bash
 $ sudo yum -y install git
-$ git clone https://github.com/sbtoledo/ec2-node-nginx.git
+$ git clone https://github.com/stldo/ec2-node-nginx.git
 ```
 
 ## Use
@@ -56,4 +56,4 @@ Generate a free SSL certificate using Certbot. `{domainName}` must be a space se
 
 ## License
 
-The MIT License (MIT), © 2017 Saulo Toledo
+[The MIT License](./LICENSE)
